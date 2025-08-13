@@ -1,0 +1,108 @@
+1️⃣ User Submits Form
+Visitor fills out the Contact Form on the public site.
+Fields captured:
+
+Name
+
+Date
+
+Recipient's Name
+
+Status (default "New")
+
+Email Address
+
+Phone Number
+
+Type of Message
+
+Message Details
+
+Feelings
+
+Story
+
+Specific Details
+
+Delivery Type
+
+On submit:
+
+Data is saved into Supabase table written hug (see table structure below).
+
+Immediately trigger Mailjet API to send a Form Submission Email (using template ID 7221431) to:
+onaamikasadguru@gmail.com.
+
+This email must contain all form fields in a beautiful HTML table (rose-pink theme) with heading:
+"You’ve Got a Kabootar from {Name}"
+
+2️⃣ Admin Login
+There will be a separate Admin Login page (not public).
+
+Username: CEO-The Written Hug
+Password: Chipmunk@15#
+
+On successful login → redirect to Orders Page (Admin Panel).
+
+3️⃣ Admin Panel / Orders Page
+Orders Table View
+
+Fetches all rows from written hug.
+
+Shows columns: Name, Date, Recipient's Name, Email Address, Status.
+
+Admin can click a row to open Conversation View.
+
+Conversation View
+
+Shows all messages between Admin and Client from the hug replies table, ordered by date.
+
+Admin messages styled differently from client messages.
+
+Reply Option (No Gmail needed)
+
+Reply box with "Send" button right inside the Conversation View.
+
+On send:
+
+Store reply in hug replies with:
+
+hugid = the selected written hug.id
+
+sender_type = "admin"
+
+sender_name = "CEO-The Written Hug"
+
+message = reply text.
+
+Trigger Mailjet API to send Reply Email to the client email from written hug using template ID 7221146.
+
+Email subject: "You’ve Got a Kabootar from SonuHoney".
+
+Email body matches branding/theme of submission email.
+
+Status Updates
+
+After sending a reply, update written hug.status from "New" → "Replied".
+
+4️⃣ Database Relationships
+written hug.id → Primary Key (uuid).
+
+hug replies.hugid → Foreign Key linking replies to their parent submission.
+
+5️⃣ Mailjet Email Flow
+Form Submission (Template ID 7221431)
+Sent to admin (onaamikasadguru@gmail.com) when someone submits the form.
+Contains all fields in rose-pink HTML table.
+
+Reply Email (Template ID 7221146)
+Sent to client when admin replies from the Orders Page.
+Contains only reply message and the signature line "You’ve Got a Kabootar from SonuHoney".
+
+6️⃣ Security & Access
+Public visitors: Can only see form page.
+
+Admin: Must log in with SonuHoney / Chipmunk@15#.
+
+All API keys & secrets must be stored securely in .env or Replit secrets.
+

@@ -1,0 +1,263 @@
+Goal: Build a mini Gmail-like admin system integrated with Supabase and Mailjet. When users submit the form it stores data in Supabase and sends a styled “New Submission” email to the admin. Admin can view submissions (Orders page), open conversation view, and reply from the site — replies are stored in Supabase and sent to clients via Mailjet.
+
+1) Project basics & environment (REQUIRED)
+Create a .env or use Replit Secrets with these variables (replace placeholder values with actual keys on Replit):
+
+pgsql
+Copy
+Edit
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://mcjvcjemyvwgrmiotihq.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<<PASTE_FRONTEND_ANON_KEY_HERE>>
+
+# Server (store SERVICE_ROLE_KEY securely; do NOT expose to frontend code)
+SUPABASE_SERVICE_ROLE_KEY=<<PASTE_SERVICE_ROLE_KEY_HERE>>
+
+# Mailjet
+MAILJET_API_KEY=<<PASTE_MAILJET_API_KEY_HERE>>
+MAILJET_API_SECRET=<<PASTE_MAILJET_API_SECRET_HERE>>
+
+# Mailjet Template IDs (already provided)
+MAILJET_TEMPLATE_ID_SUBMISSION=7221146        # submission email (admin)
+MAILJET_TEMPLATE_ID_REPLY=7221431             # admin → client reply template
+
+# Admin emails and sender
+ADMIN_EMAIL=onaamikaonaamika@gmail.com
+ADMIN_FROM_EMAIL=onaamikasadguru@gmail.com
+Security note for agent: Use SUPABASE_SERVICE_ROLE_KEY only server-side (e.g., in API routes). The frontend must use NEXT_PUBLIC_SUPABASE_ANON_KEY.
+
+2) Supabase schema (create these tables exactly)
+written_hug (stores each submission)
+
+sql
+Copy
+Edit
+CREATE TABLE public.written_hug (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  "Name" text,
+  Date timestamptz DEFAULT now(),
+  "Recipient's Name" text,
+  Status varchar,
+  "Email Address" varchar,
+  "Phone Number" float8,
+  "Type of Message" varchar,
+  "Message Details" varchar,
+  Feelings varchar,
+  Story varchar,
+  "Specific Details" varchar,
+  "Delivery Type" varchar
+);
+hug_replies (stores conversation messages; one-to-many)
+
+sql
+Copy
+Edit
+CREATE TABLE public.hug_replies (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at timestamptz DEFAULT now(),
+  hugid uuid REFERENCES public.written_hug(id) ON DELETE CASCADE,
+  sender_type text,      -- 'admin' or 'client'
+  sender_name text,
+  message text
+);
+3) Variables to use in Mailjet templates (use exactly these variable names)
+Submission template (admin email)
+Use these {{var:...}} variables inside Mailjet template ID 7221146:
+
+name
+
+recipient_name
+
+date
+
+status
+
+email
+
+phone
+
+type_of_message
+
+message_details
+
+feelings
+
+story
+
+specific_details
+
+delivery_type
+
+submission_id (hug.id for link)
+
+Reply template (client email)
+Use these {{var:...}} variables inside Mailjet template ID 7221431:
+
+client_name
+
+reply_message
+
+admin_name
+
+reply_link (optional: conversation link)
+
+from_email
+
+admin_panel_link (optional)
+
+4) API endpoints to implement (Next.js style in pages/api/ or express routes)
+All server functions must use SUPABASE_SERVICE_ROLE_KEY for DB writes/reads.
+
+POST /api/submitHug
+
+Input: JSON with all form fields
+
+Actions:
+
+Insert into written_hug. Return inserted row (with id).
+
+Call Mailjet send API with TemplateID = MAILJET_TEMPLATE_ID_SUBMISSION and Variables set to the inserted values (use the variable names above). to = ADMIN_EMAIL.
+
+Response: JSON { success: true, hug: insertedRow }
+
+GET /api/getHugs
+
+Return list of written_hug rows (order by Date desc).
+
+Use for the admin Orders page.
+
+GET /api/getConversation?hugid=...
+
+Return:
+
+the written_hug row for hugid
+
+all hug_replies rows with hugid ordered ascending by created_at
+
+Response: JSON { hug: {...}, replies: [...] }
+
+POST /api/sendReply
+
+Input: { hugid, message, admin_name }
+
+Actions:
+
+Insert into hug_replies with sender_type='admin', sender_name=admin_name, message.
+
+Lookup the written_hug row (to get client's email and client name).
+
+Call Mailjet send API with TemplateID = MAILJET_TEMPLATE_ID_REPLY and Variables:
+
+client_name = hug.Name
+
+reply_message = message
+
+admin_name = admin_name
+
+reply_link = (optional URL to conversation)
+
+from_email = ADMIN_FROM_EMAIL
+
+Return success JSON.
+
+5) Mailjet usage (server)
+Use official node-mailjet package or direct REST POST to https://api.mailjet.com/v3.1/send.
+
+Use TemplateID + TemplateLanguage: true + Variables object in Messages[0].
+
+Sender (“From”) must be ADMIN_FROM_EMAIL. Ensure this sender is validated/verified in Mailjet.
+
+6) Frontend components & UI requirements
+Design language:
+
+Theme: rose-pink (Kabootar) header gradient — keep contrast so white text is readable.
+
+Heading font: Great Vibes (for headings) and a clean sans for body (you may use Comic Sans fallback if requested, but pair with a readable body font).
+
+Keep UI clean, minimal, spaced, center-aligned cards, rounded corners, soft shadows.
+
+Pages/components to create:
+
+components/ContactForm.js
+
+Public form
+
+Fields map to written_hug columns (use exact field names in insertion)
+
+On submit: call /api/submitHug and show success toast.
+
+pages/admin/index.js (Orders page)
+
+Protected by a simple password check or env-based access (single admin).
+
+Displays list of submissions (Name, Email, Date, Status, snippet).
+
+Each row has “View Conversation” button linking to /admin/[id].
+
+pages/admin/[id].js (Conversation view)
+
+Shows full written_hug details in a card (use the same pink table style for the data if desired).
+
+Below show the conversation thread; each message shows:
+
+sender (admin/client), time, and message bubble (admin pink aligned right, client light left).
+
+Reply box at bottom:
+
+Textarea + Send button.
+
+On submit: call /api/sendReply with hugid and admin_name.
+
+After successful send: append reply to UI (no page reload) and show success.
+
+Styles:
+
+Use consistent components (cards, buttons). Provide minimal, responsive CSS or Tailwind.
+
+Keep the email template visuals consistent with admin UI (same gradient/shades).
+
+7) Mail templates to paste in Mailjet (agent: paste HTML; variables already listed)
+Template ID for submission (admin): 7221146 — paste the stylized table HTML (pink centered table; use {{var:...}} variables listed above).
+
+Template ID for replies (client): 7221431 — paste the reply HTML (use Great Vibes for heading and variables above).
+
+(Agent: use the previously discussed HTML designs — center table, outer padding, value column justified, Great Vibes heading, appropriate contrast gradient. Make sure template language is enabled.)
+
+8) Final UX details & behavior
+When a form is submitted, the server must:
+
+Insert row to written_hug (service role key)
+
+Immediately send Mailjet template 7221146 to ADMIN_EMAIL with all variables from the inserted row
+
+Admin replies should be saved to DB and sent via Mailjet 7221431.
+
+All API responses must be JSON and include meaningful error messages.
+
+Keep client-side keys set with NEXT_PUBLIC_... vars only. Never send the SUPABASE_SERVICE_ROLE_KEY to the client.
+
+9) Deliverables for me (the owner)
+Provide the following in the repo:
+
+lib/supabase.js and lib/mail.js
+
+pages/api/submitHug.js, pages/api/getHugs.js, pages/api/getConversation.js, pages/api/sendReply.js
+
+Frontend components: components/ContactForm.js, pages/admin/index.js, pages/admin/[id].js
+
+Mailjet template reminder: 7221146 (submission), 7221431 (reply)
+
+README.md with instructions to set env vars (same names as above) and how to deploy on Replit.
+
+10) Additional notes for agent
+Supabase Project ID: mcjvcjemyvwgrmiotihq — project url: https://mcjvcjemyvwgrmiotihq.supabase.co
+
+Use gen_random_uuid() for UUID defaults in SQL (or Supabase UI).
+
+Test flow end-to-end with a real submission and confirm:
+
+Record exists in written_hug with id
+
+Admin receives submission email (styled table) with correct values and working link
+
+Admin reply stores row in hug_replies and client receives reply email with variables filled

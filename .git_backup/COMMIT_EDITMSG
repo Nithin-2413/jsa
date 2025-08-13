@@ -1,0 +1,13 @@
+Assistant checkpoint: Add debug logging for email troubleshooting
+
+Assistant generated file changes:
+- server/routes.ts: Add debug logging for email sending
+
+---
+
+User prompt:
+
+everything is correct but mails not going
+
+Replit-Commit-Author: Assistant
+Replit-Commit-Session-Id: 006d0600-209d-4845-95d6-7be7b9fd89e3

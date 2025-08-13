@@ -1,0 +1,149 @@
+Core Idea
+We are building a mini Gmail-like communication system for a website, called “You’ve Got a Kabootar”.
+It allows visitors to send a detailed heartfelt message (form submission) and the admin to reply directly via an admin panel.
+All data is stored in Supabase, and all communication is sent via Mailjet using beautiful, branded HTML templates.
+
+Workflow
+User submits form on website
+
+Form captures all required fields (see written hug table).
+
+Data is stored in Supabase table written hug.
+
+A styled HTML email (Mailjet template) is sent to the admin (onaamikasadguru@gmail.com) with all submitted details.
+
+Admin logs into admin panel
+
+Can see a list of all submissions (written hug table).
+
+Can click a submission to view full conversation with that sender (messages from hug replies table filtered by hugid).
+
+Admin replies to a user
+
+Reply is stored in hug replies table (sender_type = 'admin').
+
+Reply email is sent to the client using another Mailjet template.
+
+Clients can also reply via email (optional enhancement)
+
+Replies can be logged into hug replies as sender_type = 'client' if inbound email processing is set up.
+
+Supabase
+Project ID: mcjvcjemyvwgrmiotihq
+
+Project URL: https://mcjvcjemyvwgrmiotihq.supabase.co
+
+Service Role Secret:
+
+Copy
+Edit
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1janZjamVteXZ3Z3JtaW90aWhxIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NDgzNzUzOSwiZXhwIjoyMDcwNDEzNTM5fQ.L92EzAIPklzRce-B7UrPDU2tkOkf27doQB5I_5JSI6Y
+Anon Public Key:
+
+Copy
+Edit
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1janZjamVteXZ3Z3JtaW90aWhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4Mzc1MzksImV4cCI6MjA3MDQxMzUzOX0.5NPYxRe0kXZ3d000MWc0e2FM2IZOodEFBF1PYQk-r_E
+Database Tables
+written hug (Stores form submissions)
+id → uuid (Primary Key)
+
+Name → text
+
+Date → timestamptz
+
+Recipient's Name → text
+
+Status → varchar (e.g., "New", "Replied")
+
+Email Address → varchar
+
+Phone Number → float8
+
+Type of Message → varchar
+
+Message Details → varchar
+
+Feelings → varchar
+
+Story → varchar
+
+Specific Details → varchar
+
+Delivery Type → varchar
+
+hug replies (Stores communication between admin and client)
+id → uuid (Primary Key)
+
+created_at → timestamptz
+
+hugid → uuid (Foreign Key → written hug.id)
+
+sender_type → text (admin or client)
+
+sender_name → text
+
+message → varchar
+
+Mailjet
+API Key: ca4a15f0f8ab85a83434c24134e32f23
+
+Secret Key: 75c3110d0ec94401a1ee4acd0ecf65bc
+
+Templates:
+
+Form Submission Template ID: 7221431
+
+HTML email with a centered table containing all submitted fields.
+
+Theme: Rose-pink gradient (#f45367, #f8d0d4, #ffbecd, #fadfe0) arranged from darker to lighter horizontally.
+
+Font: Great Vibes for headings, clean sans-serif for table text.
+
+Heading: You’ve Got a Kabootar from {Name}
+
+Field names in left column, values justified in right column.
+
+Communication Reply Template ID: 7221146
+
+Same theme and styling as submission template.
+
+Heading: You’ve Got a Kabootar from {Admin Name} or {Name} depending on sender.
+
+Frontend / UI Requirements
+Contact Form Page: Simple, beautiful form with all required fields.
+
+Admin Panel / Orders Page:
+
+List of all submissions (sortable, searchable).
+
+Conversation view with full message history between admin and client.
+
+Reply box with send button.
+
+Styled to match rose-pink gradient and Great Vibes branding.
+
+Core Variables in Templates
+{Name} → Sender’s name from form.
+
+{Email Address} → Sender’s email.
+
+{Message Details} → Main message text.
+
+{Type of Message}, {Feelings}, {Story}, {Specific Details}, {Delivery Type}, {Phone Number}, {Recipient's Name}, {Date} → other fields from written hug.
+
+{message} in reply template → reply text from admin.
+
+Expected System Behavior
+When a form is submitted:
+
+Store in written hug.
+
+Send email via template 7221431 to admin with all form data.
+
+When admin replies:
+
+Store reply in hug replies.
+
+Send email via template 7221146 to client email.
+
+Maintain same branding in admin panel UI
