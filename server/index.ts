@@ -11,10 +11,10 @@ app.use((req, res, next) => {
   const path = req.path;
   let capturedJsonResponse: Record<string, any> | undefined = undefined;
 
-  const originalResJson = res.json;
-  res.json = function (bodyJson, ...args) {
+  const originalResJson = res.json.bind(res) as (body?: any) => Response;
+  (res as any).json = (bodyJson: any) => {
     capturedJsonResponse = bodyJson;
-    return originalResJson.apply(res, [bodyJson, ...args]);
+    return originalResJson(bodyJson);
   };
 
   res.on("finish", () => {
@@ -44,7 +44,7 @@ app.use((req, res, next) => {
     const message = err.message || "Internal Server Error";
 
     res.status(status).json({ message });
-    throw err;
+    // Removed throw to avoid crashing the process after response
   });
 
   // importantly only setup vite in development and after
