@@ -30,6 +30,9 @@ interface Reply {
   sender_type: string;
   sender_name: string;
   message: string;
+  email_sent?: boolean;
+  is_read?: boolean;
+  email_message_id?: string;
 }
 
 const AdminConversation = () => {
@@ -165,13 +168,15 @@ const AdminConversation = () => {
           sender_type: 'admin',
           sender_name: adminName,
           message: replyMessage,
+          email_sent: true,
+          is_read: true,
         };
         setReplies([...replies, newReply]);
         setReplyMessage('');
         
         toast({
           title: "Reply Sent",
-          description: "Your reply has been sent to the client",
+          description: "Your reply has been sent to the client via email",
         });
       } else {
         toast({
@@ -188,6 +193,31 @@ const AdminConversation = () => {
       });
     } finally {
       setSending(false);
+    }
+  };
+
+  const markAsRead = async (replyId: string) => {
+    try {
+      const response = await fetch('/api/markEmailRead', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          replyId: replyId,
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        // Update the reply in the UI
+        setReplies(replies.map(reply => 
+          reply.id === replyId ? { ...reply, is_read: true } : reply
+        ));
+      }
+    } catch (error) {
+      console.error('Failed to mark as read:', error);
     }
   };
 
@@ -377,34 +407,73 @@ const AdminConversation = () => {
                     className={`flex ${reply.sender_type === 'admin' ? 'justify-end' : 'justify-start'}`}
                   >
                     <div
-                      className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg shadow-sm ${
+                      className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg shadow-sm relative ${
                         reply.sender_type === 'admin'
                           ? 'bg-gradient-to-r from-rose-500 to-pink-600 text-white'
+                          : reply.is_read === false
+                          ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-gray-800 border-2 border-blue-300 cursor-pointer hover:from-blue-100 hover:to-blue-150'
                           : 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 border border-gray-300'
                       }`}
+                      onClick={() => {
+                        if (reply.sender_type === 'client' && reply.is_read === false) {
+                          markAsRead(reply.id);
+                        }
+                      }}
                     >
-                      <div className={`text-sm font-medium mb-2 ${
+                      {/* Unread indicator */}
+                      {reply.sender_type === 'client' && reply.is_read === false && (
+                        <div className="absolute -top-2 -right-2 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs font-bold">!</span>
+                        </div>
+                      )}
+                      
+                      <div className={`text-sm font-medium mb-2 flex items-center gap-2 ${
                         reply.sender_type === 'admin' ? 'text-rose-100' : 'text-gray-600'
                       }`}>
-                        {reply.sender_name} 
-                        <span className={`ml-2 px-2 py-1 rounded-full text-xs ${
+                        <span>{reply.sender_name}</span>
+                        <span className={`px-2 py-1 rounded-full text-xs ${
                           reply.sender_type === 'admin' 
                             ? 'bg-white/20 text-white' 
                             : 'bg-gray-300 text-gray-700'
                         }`}>
                           {reply.sender_type}
                         </span>
+                        
+                        {/* Email status indicator */}
+                        {reply.sender_type === 'admin' && reply.email_sent && (
+                          <span className="flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
+                            <Mail className="w-3 h-3" />
+                            Sent
+                          </span>
+                        )}
+                        
+                        {reply.sender_type === 'client' && (
+                          <span className="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
+                            <Mail className="w-3 h-3" />
+                            Email
+                          </span>
+                        )}
                       </div>
+                      
                       <div className="text-sm leading-relaxed">{reply.message}</div>
-                      <div className={`text-xs mt-2 ${
+                      
+                      <div className={`text-xs mt-2 flex items-center justify-between ${
                         reply.sender_type === 'admin' ? 'text-rose-100' : 'text-gray-500'
                       }`}>
-                        {new Date(reply.created_at).toLocaleString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
+                        <span>
+                          {new Date(reply.created_at).toLocaleString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                        
+                        {reply.sender_type === 'client' && (
+                          <span className={`text-xs ${reply.is_read ? 'text-green-600' : 'text-red-600 font-medium'}`}>
+                            {reply.is_read ? '✓ Read' : '● Unread'}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>

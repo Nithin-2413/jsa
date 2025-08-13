@@ -23,6 +23,18 @@ const sendReplySchema = z.object({
   admin_name: z.string(),
 });
 
+const markEmailReadSchema = z.object({
+  replyId: z.string().uuid(),
+});
+
+const incomingEmailSchema = z.object({
+  hugid: z.string().uuid(),
+  fromEmail: z.string().email(),
+  subject: z.string(),
+  message: z.string(),
+  messageId: z.string().optional(),
+});
+
 const adminLoginSchema = z.object({
   username: z.string(),
   password: z.string(),
@@ -165,6 +177,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           sender_type: 'admin',
           sender_name: 'CEO-The Written Hug',
           message: validatedData.message,
+          email_sent: true,
+          is_read: true, // Admin's own messages are marked as read
         }])
         .select()
         .single();
@@ -204,6 +218,101 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(400).json({ 
         success: false, 
         message: error instanceof Error ? error.message : 'Failed to send reply' 
+      });
+    }
+  });
+
+  // Mark email/reply as read
+  app.post("/api/markEmailRead", async (req, res) => {
+    try {
+      const validatedData = markEmailReadSchema.parse(req.body);
+
+      const { error } = await supabaseAdmin
+        .from('hug replies')
+        .update({ is_read: true })
+        .eq('id', validatedData.replyId);
+
+      if (error) throw error;
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Mark email read error:', error);
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to mark as read' 
+      });
+    }
+  });
+
+  // Handle incoming email response (webhook endpoint)
+  app.post("/api/incomingEmail", async (req, res) => {
+    try {
+      const validatedData = incomingEmailSchema.parse(req.body);
+
+      // Insert incoming email as a reply
+      const { data: reply, error: replyError } = await supabaseAdmin
+        .from('hug replies')
+        .insert([{
+          hugid: validatedData.hugid,
+          sender_type: 'client',
+          sender_name: '', // Will be filled from hug data
+          message: validatedData.message,
+          email_sent: false,
+          is_read: false,
+          email_message_id: validatedData.messageId,
+        }])
+        .select()
+        .single();
+
+      if (replyError) throw replyError;
+
+      // Update sender name from hug data
+      const { data: hug } = await supabaseAdmin
+        .from('written hug')
+        .select('Name')
+        .eq('id', validatedData.hugid)
+        .single();
+
+      if (hug) {
+        await supabaseAdmin
+          .from('hug replies')
+          .update({ sender_name: hug.Name })
+          .eq('id', reply.id);
+      }
+
+      // Update hug status to show there's a new response
+      await supabaseAdmin
+        .from('written hug')
+        .update({ Status: 'Client Replied' })
+        .eq('id', validatedData.hugid);
+
+      res.json({ success: true, reply });
+    } catch (error) {
+      console.error('Incoming email error:', error);
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to process incoming email' 
+      });
+    }
+  });
+
+  // Get unread message count for admin dashboard
+  app.get("/api/getUnreadCount", async (req, res) => {
+    try {
+      const { data: unreadReplies, error: repliesError } = await supabaseAdmin
+        .from('hug replies')
+        .select('id')
+        .eq('sender_type', 'client')
+        .eq('is_read', false);
+
+      if (repliesError) throw repliesError;
+
+      res.json({ success: true, unreadCount: unreadReplies?.length || 0 });
+    } catch (error) {
+      console.error('Get unread count error:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to get unread count' 
       });
     }
   });

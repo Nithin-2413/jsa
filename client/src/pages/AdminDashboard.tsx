@@ -31,11 +31,16 @@ const AdminDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
+  const [unreadCount, setUnreadCount] = useState(0);
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
   useEffect(() => {
     fetchHugs();
+    fetchUnreadCount();
+    // Set up periodic refresh for unread count
+    const interval = setInterval(fetchUnreadCount, 30000); // Refresh every 30 seconds
+    return () => clearInterval(interval);
   }, []);
 
   const fetchHugs = async () => {
@@ -61,6 +66,18 @@ const AdminDashboard = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await fetch('/api/getUnreadCount');
+      const result = await response.json();
+      if (result.success) {
+        setUnreadCount(result.unreadCount);
+      }
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
     }
   };
 
