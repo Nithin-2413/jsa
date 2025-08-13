@@ -83,6 +83,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         specific_details: validatedData.specificDetails || '',
         delivery_type: validatedData.deliveryType,
         submission_id: hug.id,
+        status: 'New',
+        date: new Date().toLocaleString(),
+        admin_panel_link: `${req.protocol}://${req.get('host')}/admin/conversation/${hug.id}`,
       });
 
       console.log('Email send result:', emailSent);
@@ -187,7 +190,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         reply_message: validatedData.message,
         admin_name: validatedData.admin_name,
         from_email: process.env.ADMIN_FROM_EMAIL || '',
-        reply_link: `${req.protocol}://${req.get('host')}/admin/${validatedData.hugid}`,
+        reply_link: `${req.protocol}://${req.get('host')}/admin/conversation/${validatedData.hugid}`,
       });
 
 
@@ -236,9 +239,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       });
     } catch (error) {
+      const err = error as any;
       res.status(500).json({ 
         success: false, 
-        error: error.message,
+        error: err?.message || 'Unknown error',
         secrets: {
           hasClientId: !!process.env.OUTLOOK_CLIENT_ID,
           hasClientSecret: !!process.env.OUTLOOK_CLIENT_SECRET,

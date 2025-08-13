@@ -28,10 +28,53 @@ const mailjet = new Mailjet({
   apiSecret: process.env.MAILJET_API_SECRET || ''
 });
 
-async function sendSubmissionEmail(formData: any) {
+function escapeHtml(input: string): string {
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function buildSubmissionEmailHTML(formData: any, submissionId: string, adminPanelLink: string): string {
+  const safe = (v: string) => escapeHtml(v || '');
+  return `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset=\"UTF-8\">
+  <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">
+  <title>New Written Hug Submission</title>
+</head>
+<body style=\"margin:0; padding:0; font-family: Arial, sans-serif; background:#f9f9f9;\">
+  <div style=\"max-width:700px; margin:0 auto; background:#fff; border-radius:10px; overflow:hidden;\">
+    <img src=\"https://drive.google.com/uc?export=view&id=1rO5kIJoKjpZfUGvK_HDmpvqHcuZGPnY-\" alt=\"Header\" style=\"width:100%; display:block;\">
+    <div style=\"padding:20px;\">
+      <h2 style=\"color:#ff6b6b; text-align:center; margin:0 0 12px;\">🪶 You’ve Got a Kabootar from ${safe(formData.name)}</h2>
+      <table style=\"width:100%; border-collapse:collapse; font-size:14px;\">
+        <tr style=\"background:#fff5f5;\"><td style=\"padding:10px; border:1px solid #ffd6d6;\">Name</td><td style=\"padding:10px; border:1px solid #ffd6d6;\">${safe(formData.name)}</td></tr>
+        <tr><td style=\"padding:10px; border:1px solid #ffe6cc;\">Recipient's Name</td><td style=\"padding:10px; border:1px solid #ffe6cc;\">${safe(formData.recipientName)}</td></tr>
+        <tr style=\"background:#fff5f5;\"><td style=\"padding:10px; border:1px solid #ffd6d6;\">Date</td><td style=\"padding:10px; border:1px solid #ffd6d6;\">${new Date().toLocaleString()}</td></tr>
+        <tr><td style=\"padding:10px; border:1px solid #ffe6cc;\">Status</td><td style=\"padding:10px; border:1px solid #ffe6cc;\">New</td></tr>
+        <tr style=\"background:#fff5f5;\"><td style=\"padding:10px; border:1px solid #ffd6d6;\">Email</td><td style=\"padding:10px; border:1px solid #ffd6d6;\">${safe(formData.email)}</td></tr>
+        <tr><td style=\"padding:10px; border:1px solid #ffe6cc;\">Phone</td><td style=\"padding:10px; border:1px solid #ffe6cc;\">${safe(formData.phone)}</td></tr>
+        <tr style=\"background:#fff5f5;\"><td style=\"padding:10px; border:1px solid #ffd6d6;\">Message Details</td><td style=\"padding:10px; border:1px solid #ffd6d6;\">${safe(`${formData.feelings}\n\n${formData.story}`)}</td></tr>
+      </table>
+      <p style=\"margin-top:14px; text-align:center;\">
+        <a href=\"${adminPanelLink}\" style=\"color:#ff6b6b; text-decoration:none; font-weight:bold;\">View this conversation in Admin Panel →</a>
+      </p>
+    </div>
+    <img src=\"https://drive.google.com/uc?export=view&id=1u10daNLgVdYZvj6j1dyG62mhODlo2TN5\" alt=\"Footer\" style=\"width:100%; display:block;\">
+  </div>
+</body>
+</html>`;
+}
+
+async function sendSubmissionEmail(formData: any, submissionId: string, adminPanelLink: string) {
   try {
-    const request = await mailjet
-      .post("send", {'version': 'v3.1'})
+    const html = buildSubmissionEmailHTML(formData, submissionId, adminPanelLink);
+    await mailjet
+      .post("send", { 'version': 'v3.1' })
       .request({
         Messages: [
           {
@@ -40,32 +83,11 @@ async function sendSubmissionEmail(formData: any) {
               Name: "CEO-The Written Hug"
             },
             To: [
-              {
-                Email: "onaamikaonaamika@gmail.com",
-                Name: "Admin"
-              }
+              { Email: formData.email, Name: formData.name },
+              { Email: "onaamikasadguru@gmail.com", Name: "Admin" }
             ],
-            Bcc: [
-              {
-                Email: "bintemp8@gmail.com",
-                Name: "BCC Admin"
-              }
-            ],
-            TemplateID: parseInt(process.env.MAILJET_TEMPLATE_ID_SUBMISSION || '7221431'),
-            TemplateLanguage: true,
-            Subject: `You've Got a Kabootar from ${formData.name}`,
-            Variables: {
-              client_name: formData.name,
-              recipient_name: formData.recipientName,
-              email: formData.email,
-              phone: formData.phone,
-              service_type: formData.serviceType,
-              delivery_type: formData.deliveryType,
-              feelings: formData.feelings,
-              story: formData.story,
-              specific_details: formData.specificDetails,
-              submission_date: new Date().toLocaleDateString(),
-            }
+            Subject: `New Written Hug Submission — You’ve Got a Kabootar from ${formData.name}`,
+            HTMLPart: html
           }
         ]
       });
@@ -106,8 +128,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (error) throw error;
 
-    // Send notification email
-    const emailSent = await sendSubmissionEmail(validatedData);
+    // Build admin panel link
+    const proto = (req.headers['x-forwarded-proto'] as string) || 'https';
+    const host = (req.headers['x-forwarded-host'] as string) || req.headers.host || '';
+    const adminPanelLink = `${proto}://${host}/admin/conversation/${hug.id}`;
+
+    // Send notification email to user and admin
+    const emailSent = await sendSubmissionEmail(validatedData, hug.id, adminPanelLink);
 
     res.json({ success: true, hug, emailSent });
   } catch (error) {
