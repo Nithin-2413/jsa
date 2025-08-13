@@ -4,10 +4,10 @@ if (!process.env.MAILJET_API_KEY || !process.env.MAILJET_API_SECRET) {
   throw new Error("MAILJET_API_KEY and MAILJET_API_SECRET environment variables must be set");
 }
 
-const mailjet = Mailjet.apiConnect(
-  process.env.MAILJET_API_KEY,
-  process.env.MAILJET_API_SECRET
-);
+const mailjet = new Mailjet({
+  apiKey: process.env.MAILJET_API_KEY,
+  apiSecret: process.env.MAILJET_API_SECRET
+});
 
 export interface EmailSubmissionParams {
   name: string;
@@ -34,6 +34,7 @@ export interface EmailReplyParams {
 
 export async function sendSubmissionEmailMailjet(params: EmailSubmissionParams): Promise<boolean> {
   try {
+    console.log('Attempting Mailjet submission email...');
     const templateId = parseInt(process.env.MAILJET_TEMPLATE_ID_SUBMISSION || '7221431');
     
     const request = mailjet
@@ -61,17 +62,16 @@ export async function sendSubmissionEmailMailjet(params: EmailSubmissionParams):
             TemplateLanguage: true,
             Subject: `You've Got a Kabootar from ${params.name}`,
             Variables: {
-              name: params.name,
+              client_name: params.name,
               recipient_name: params.recipient_name,
               email: params.email,
               phone: params.phone,
-              type_of_message: params.type_of_message,
+              service_type: params.type_of_message,
               delivery_type: params.delivery_type,
               feelings: params.feelings,
               story: params.story,
               specific_details: params.specific_details || '',
-              submission_id: params.submission_id,
-              date: new Date().toLocaleString()
+              submission_date: new Date().toLocaleDateString()
             }
           }
         ]
