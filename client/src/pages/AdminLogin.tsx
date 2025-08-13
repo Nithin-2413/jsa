@@ -115,7 +115,7 @@ const AdminLogin = () => {
         });
 
         setTimeout(() => {
-          setLocation('/admin/orders');
+          setLocation('/admin/dashboard');
         }, 1000);
       } else {
         toast({
