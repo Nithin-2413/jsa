@@ -1,0 +1,1 @@
+export const SUPABASE_URL = 'https://mcjvcjemyvwgrmiotihq.supabase.co';

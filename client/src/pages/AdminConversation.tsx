@@ -98,8 +98,8 @@ const AdminConversation = () => {
 
   // Check authentication
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('adminLoggedIn');
-    if (isLoggedIn === 'true') {
+    const token = localStorage.getItem('adminToken');
+    if (token) {
       setAuthenticated(true);
     } else {
       setLocation('/admin/login');

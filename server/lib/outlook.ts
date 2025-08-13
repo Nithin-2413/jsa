@@ -1,35 +1,26 @@
 import { ConfidentialClientApplication } from '@azure/msal-node';
 import axios from 'axios';
 
-if (!process.env.OUTLOOK_CLIENT_ID || !process.env.OUTLOOK_CLIENT_SECRET || !process.env.OUTLOOK_TENANT_ID) {
-  throw new Error("OUTLOOK_CLIENT_ID, OUTLOOK_CLIENT_SECRET, and OUTLOOK_TENANT_ID environment variables must be set");
-}
+const isConfigured = Boolean(process.env.OUTLOOK_CLIENT_ID && process.env.OUTLOOK_CLIENT_SECRET && process.env.OUTLOOK_TENANT_ID && process.env.ADMIN_FROM_EMAIL);
 
-const msalConfig = {
+const msalConfig = isConfigured ? {
   auth: {
     clientId: process.env.OUTLOOK_CLIENT_ID!,
     clientSecret: process.env.OUTLOOK_CLIENT_SECRET!,
     authority: process.env.OUTLOOK_AUTHORITY || `https://login.microsoftonline.com/${process.env.OUTLOOK_TENANT_ID}`
   }
-};
+} : undefined;
 
-const cca = new ConfidentialClientApplication(msalConfig);
+const cca = msalConfig ? new ConfidentialClientApplication(msalConfig) : undefined;
 
 async function getAccessToken(): Promise<string> {
-  try {
-    const clientCredentialRequest = {
-      scopes: ['https://graph.microsoft.com/.default'],
-    };
-
-    const response = await cca.acquireTokenByClientCredential(clientCredentialRequest);
-    if (!response?.accessToken) {
-      throw new Error('Failed to acquire access token');
-    }
-    return response.accessToken;
-  } catch (error) {
-    console.error('Error acquiring access token:', error);
-    throw error;
+  if (!cca) throw new Error('Outlook email not configured');
+  const clientCredentialRequest = { scopes: ['https://graph.microsoft.com/.default'] } as const;
+  const response = await cca.acquireTokenByClientCredential(clientCredentialRequest);
+  if (!response?.accessToken) {
+    throw new Error('Failed to acquire access token');
   }
+  return response.accessToken;
 }
 
 export interface EmailSubmissionParams {
@@ -57,6 +48,7 @@ export interface EmailReplyParams {
 
 export async function sendSubmissionEmail(params: EmailSubmissionParams): Promise<boolean> {
   try {
+    if (!isConfigured) return false;
     const accessToken = await getAccessToken();
     
     const emailContent = `
@@ -79,6 +71,8 @@ export async function sendSubmissionEmail(params: EmailSubmissionParams): Promis
       <p><strong>Date:</strong> ${new Date().toLocaleString()}</p>
     `;
 
+    const adminTo = process.env.ADMIN_TO_EMAIL || process.env.ADMIN_FROM_EMAIL!;
+
     const mailData = {
       message: {
         subject: `You've Got a Kabootar from ${params.name}`,
@@ -89,7 +83,7 @@ export async function sendSubmissionEmail(params: EmailSubmissionParams): Promis
         toRecipients: [
           {
             emailAddress: {
-              address: 'onaamikasadguru@gmail.com',
+              address: adminTo,
               name: 'Admin'
             }
           }
@@ -120,17 +114,13 @@ export async function sendSubmissionEmail(params: EmailSubmissionParams): Promis
     return true;
   } catch (error) {
     console.error('Microsoft Graph submission email error:', error);
-    if (error instanceof Error && 'response' in error) {
-      const axiosError = error as any;
-      console.error('Response status:', axiosError.response?.status);
-      console.error('Response data:', axiosError.response?.data);
-    }
     return false;
   }
 }
 
 export async function sendReplyEmail(clientEmail: string, params: EmailReplyParams): Promise<boolean> {
   try {
+    if (!isConfigured) return false;
     const accessToken = await getAccessToken();
     
     const emailContent = `
@@ -183,11 +173,6 @@ export async function sendReplyEmail(clientEmail: string, params: EmailReplyPara
     return true;
   } catch (error) {
     console.error('Microsoft Graph reply email error:', error);
-    if (error instanceof Error && 'response' in error) {
-      const axiosError = error as any;
-      console.error('Response status:', axiosError.response?.status);
-      console.error('Response data:', axiosError.response?.data);
-    }
     return false;
   }
 }

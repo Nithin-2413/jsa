@@ -101,7 +101,7 @@ const AdminDashboard = () => {
   const stats = getStats();
 
   const handleLogout = () => {
-    sessionStorage.removeItem('adminLoggedIn');
+    localStorage.removeItem('adminToken');
     setLocation('/admin/login');
   };
 

@@ -104,10 +104,9 @@ const AdminLogin = () => {
 
       const result = await response.json();
 
-      if (result.success) {
-        // Store login state in localStorage
-        localStorage.setItem('adminLoggedIn', 'true');
-        localStorage.setItem('adminUsername', username);
+      if (result.success && result.token) {
+        // Store login token in localStorage
+        localStorage.setItem('adminToken', result.token);
         
         toast({
           title: "Welcome back!",
