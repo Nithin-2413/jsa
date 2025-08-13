@@ -320,40 +320,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Test email configuration
   app.get("/api/testEmail", async (req, res) => {
     try {
+      console.log('Testing email configuration...');
+      console.log('Environment variables check:', {
+        hasClientId: !!process.env.OUTLOOK_CLIENT_ID,
+        hasClientSecret: !!process.env.OUTLOOK_CLIENT_SECRET,
+        hasTenantId: !!process.env.OUTLOOK_TENANT_ID,
+        hasAdminEmail: !!process.env.ADMIN_FROM_EMAIL,
+        adminEmail: process.env.ADMIN_FROM_EMAIL,
+        clientIdLength: process.env.OUTLOOK_CLIENT_ID?.length,
+        tenantIdLength: process.env.OUTLOOK_TENANT_ID?.length
+      });
+
       const testResult = await sendSubmissionEmail({
         name: "Test User",
         recipient_name: "Test Recipient",
         email: "test@example.com",
         phone: "1234567890",
-        type_of_message: "Test Message",
-        message_details: "This is a test email",
-        feelings: "Testing feelings",
-        story: "Testing story",
-        specific_details: "Testing specific details",
+        type_of_message: "Test Message Type",
+        message_details: "This is a test email to verify the new template works correctly.",
+        feelings: "Testing feelings section",
+        story: "Testing story section with multiple lines\nThis should show on a new line",
+        specific_details: "Testing specific details section",
         delivery_type: "Digital",
         submission_id: "test-123",
       });
       
       res.json({ 
         success: testResult, 
-        message: testResult ? "Test email sent successfully" : "Test email failed",
-        secrets: {
+        message: testResult ? "Test email sent successfully with new template" : "Test email failed - check server logs for details",
+        environment: {
           hasClientId: !!process.env.OUTLOOK_CLIENT_ID,
           hasClientSecret: !!process.env.OUTLOOK_CLIENT_SECRET,
           hasTenantId: !!process.env.OUTLOOK_TENANT_ID,
           hasAdminEmail: !!process.env.ADMIN_FROM_EMAIL,
-        }
+          adminEmail: process.env.ADMIN_FROM_EMAIL,
+        },
+        timestamp: new Date().toISOString()
       });
     } catch (error) {
+      console.error('Test email error:', error);
       res.status(500).json({ 
         success: false, 
-        error: error.message,
-        secrets: {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        environment: {
           hasClientId: !!process.env.OUTLOOK_CLIENT_ID,
           hasClientSecret: !!process.env.OUTLOOK_CLIENT_SECRET,
           hasTenantId: !!process.env.OUTLOOK_TENANT_ID,
           hasAdminEmail: !!process.env.ADMIN_FROM_EMAIL,
-        }
+          adminEmail: process.env.ADMIN_FROM_EMAIL,
+        },
+        timestamp: new Date().toISOString()
       });
     }
   });

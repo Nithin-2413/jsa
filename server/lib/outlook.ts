@@ -80,21 +80,79 @@ export async function sendSubmissionEmail(params: EmailSubmissionParams): Promis
 <body style="margin:0; padding:0; font-family: Arial, sans-serif; background:#f9f9f9;">
   <div style="max-width:700px; margin:0 auto; background:#fff; border-radius:10px; overflow:hidden;">
     <img src="https://drive.google.com/uc?export=view&id=1rO5kIJoKjpZfUGvK_HDmpvqHcuZGPnY-" alt="Header" style="width:100%; display:block;">
-    <div style="padding:20px;">
-      <h2 style="color:#ff6b6b; text-align:center; margin:0 0 12px;">🪶 You've Got a Kabootar from ${params.name}</h2>
-      <table style="width:100%; border-collapse:collapse; font-size:14px;">
-        <tr style="background:#fff5f5;"><td style="padding:10px; border:1px solid #ffd6d6;">Name</td><td style="padding:10px; border:1px solid #ffd6d6;">${params.name}</td></tr>
-        <tr><td style="padding:10px; border:1px solid #ffe6cc;">Recipient's Name</td><td style="padding:10px; border:1px solid #ffe6cc;">${params.recipient_name}</td></tr>
-        <tr style="background:#fff5f5;"><td style="padding:10px; border:1px solid #ffd6d6;">Date</td><td style="padding:10px; border:1px solid #ffd6d6;">${currentDate}</td></tr>
-        <tr><td style="padding:10px; border:1px solid #ffe6cc;">Status</td><td style="padding:10px; border:1px solid #ffe6cc;">New</td></tr>
-        <tr style="background:#fff5f5;"><td style="padding:10px; border:1px solid #ffd6d6;">Email</td><td style="padding:10px; border:1px solid #ffd6d6;">${params.email}</td></tr>
-        <tr><td style="padding:10px; border:1px solid #ffe6cc;">Phone</td><td style="padding:10px; border:1px solid #ffe6cc;">${params.phone}</td></tr>
-        <tr style="background:#fff5f5;"><td style="padding:10px; border:1px solid #ffd6d6;">Message Details</td><td style="padding:10px; border:1px solid #ffd6d6;">${params.message_details.replace(/\n/g, '<br>')}</td></tr>
+    
+    <h2 style="font-family: Arial, sans-serif; color: #ff6b6b; margin-bottom: 20px; text-align: center; padding: 20px 20px 0;">
+      Kabootar has got ${params.name} a Letter🪶 
+    </h2>
+
+    <div style="display: flex; justify-content: center; padding: 20px;">
+      <table style="border-collapse: collapse; width: 80%; max-width: 700px; font-family: Arial, sans-serif; border-radius: 8px; overflow: hidden;">
+        <thead>
+          <tr style="background: linear-gradient(90deg, #ff6b6b, #ff9f43); color: white;">
+            <th style="text-align:left; padding: 10px; font-size: 14px;">Field</th>
+            <th style="text-align:left; padding: 10px; font-size: 14px;">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background-color: #fff5f5;">
+            <td style="padding: 10px; border-bottom: 1px solid #ffd6d6; text-align:left;">Name</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ffd6d6; text-align:left;">${params.name}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #ffe6cc; text-align:left;">Recipient's Name</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ffe6cc; text-align:left;">${params.recipient_name}</td>
+          </tr>
+          <tr style="background-color: #fff5f5;">
+            <td style="padding: 10px; border-bottom: 1px solid #ffd6d6; text-align:left;">Date</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ffd6d6; text-align:left;">${currentDate}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #ffe6cc; text-align:left;">Status</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ffe6cc; text-align:left;">New</td>
+          </tr>
+          <tr style="background-color: #fff5f5;">
+            <td style="padding: 10px; border-bottom: 1px solid #ffd6d6; text-align:left;">Email</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ffd6d6; text-align:left;">${params.email}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #ffe6cc; text-align:left;">Phone</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ffe6cc; text-align:left;">${params.phone}</td>
+          </tr>
+          <tr style="background-color: #fff5f5;">
+            <td style="padding: 10px; border-bottom: 1px solid #ffd6d6; text-align:left;">Type of Message</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ffd6d6; text-align:left;">${params.type_of_message}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #ffe6cc; text-align:left;">Message Details</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ffe6cc; text-align:left;">${params.message_details.replace(/\n/g, '<br>')}</td>
+          </tr>
+          <tr style="background-color: #fff5f5;">
+            <td style="padding: 10px; border-bottom: 1px solid #ffd6d6; text-align:left;">Feelings</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ffd6d6; text-align:left;">${params.feelings.replace(/\n/g, '<br>')}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; border-bottom: 1px solid #ffe6cc; text-align:left;">Story</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ffe6cc; text-align:left;">${params.story.replace(/\n/g, '<br>')}</td>
+          </tr>
+          <tr style="background-color: #fff5f5;">
+            <td style="padding: 10px; border-bottom: 1px solid #ffd6d6; text-align:left;">Specific Details</td>
+            <td style="padding: 10px; border-bottom: 1px solid #ffd6d6; text-align:left;">${params.specific_details ? params.specific_details.replace(/\n/g, '<br>') : 'None provided'}</td>
+          </tr>
+          <tr>
+            <td style="padding: 10px; text-align:left;">Delivery Type</td>
+            <td style="padding: 10px; text-align:left;">${params.delivery_type}</td>
+          </tr>
+        </tbody>
       </table>
-      <p style="margin-top:14px; text-align:center;">
-        <a href="https://your-admin-panel.com/hugs/${params.submission_id}" style="color:#ff6b6b; text-decoration:none; font-weight:bold;">View this conversation in Admin Panel →</a>
-      </p>
     </div>
+
+    <p style="margin-top: 20px; font-family: Arial, sans-serif; text-align: center; padding: 0 20px 20px;">
+      📌 <a href="https://your-admin-panel.com/hugs/${params.submission_id}" 
+            style="color: #ff6b6b; text-decoration: none; font-weight: bold;">
+        View this conversation in Admin Panel →
+      </a>
+    </p>
+    
     <img src="https://drive.google.com/uc?export=view&id=1u10daNLgVdYZvj6j1dyG62mhODlo2TN5" alt="Footer" style="width:100%; display:block;">
   </div>
 </body>
@@ -104,7 +162,7 @@ export async function sendSubmissionEmail(params: EmailSubmissionParams): Promis
     // Send email to admin
     const adminMailData = {
       message: {
-        subject: `🪶 You've Got a Kabootar from ${params.name}`,
+        subject: `🪶 You Got a Kabootar from ${params.name}`,
         body: {
           contentType: 'HTML',
           content: emailContent
@@ -134,7 +192,7 @@ export async function sendSubmissionEmail(params: EmailSubmissionParams): Promis
     // Send email to user (same content but different subject for confirmation)
     const userMailData = {
       message: {
-        subject: `✨ Thank you for your submission! - The Written Hug`,
+        subject: `🪶 You Got a Kabootar - Thank you for your submission!`,
         body: {
           contentType: 'HTML',
           content: emailContent
