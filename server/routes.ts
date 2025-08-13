@@ -23,6 +23,18 @@ const sendReplySchema = z.object({
   admin_name: z.string(),
 });
 
+const markEmailReadSchema = z.object({
+  replyId: z.string().uuid(),
+});
+
+const incomingEmailSchema = z.object({
+  hugid: z.string().uuid(),
+  fromEmail: z.string().email(),
+  subject: z.string(),
+  message: z.string(),
+  messageId: z.string().optional(),
+});
+
 const adminLoginSchema = z.object({
   username: z.string(),
   password: z.string(),
@@ -165,6 +177,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           sender_type: 'admin',
           sender_name: 'CEO-The Written Hug',
           message: validatedData.message,
+          email_sent: true,
+          is_read: true, // Admin's own messages are marked as read
         }])
         .select()
         .single();
@@ -208,43 +222,155 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Mark email/reply as read
+  app.post("/api/markEmailRead", async (req, res) => {
+    try {
+      const validatedData = markEmailReadSchema.parse(req.body);
+
+      const { error } = await supabaseAdmin
+        .from('hug replies')
+        .update({ is_read: true })
+        .eq('id', validatedData.replyId);
+
+      if (error) throw error;
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Mark email read error:', error);
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to mark as read' 
+      });
+    }
+  });
+
+  // Handle incoming email response (webhook endpoint)
+  app.post("/api/incomingEmail", async (req, res) => {
+    try {
+      const validatedData = incomingEmailSchema.parse(req.body);
+
+      // Insert incoming email as a reply
+      const { data: reply, error: replyError } = await supabaseAdmin
+        .from('hug replies')
+        .insert([{
+          hugid: validatedData.hugid,
+          sender_type: 'client',
+          sender_name: '', // Will be filled from hug data
+          message: validatedData.message,
+          email_sent: false,
+          is_read: false,
+          email_message_id: validatedData.messageId,
+        }])
+        .select()
+        .single();
+
+      if (replyError) throw replyError;
+
+      // Update sender name from hug data
+      const { data: hug } = await supabaseAdmin
+        .from('written hug')
+        .select('Name')
+        .eq('id', validatedData.hugid)
+        .single();
+
+      if (hug) {
+        await supabaseAdmin
+          .from('hug replies')
+          .update({ sender_name: hug.Name })
+          .eq('id', reply.id);
+      }
+
+      // Update hug status to show there's a new response
+      await supabaseAdmin
+        .from('written hug')
+        .update({ Status: 'Client Replied' })
+        .eq('id', validatedData.hugid);
+
+      res.json({ success: true, reply });
+    } catch (error) {
+      console.error('Incoming email error:', error);
+      res.status(400).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to process incoming email' 
+      });
+    }
+  });
+
+  // Get unread message count for admin dashboard
+  app.get("/api/getUnreadCount", async (req, res) => {
+    try {
+      const { data: unreadReplies, error: repliesError } = await supabaseAdmin
+        .from('hug replies')
+        .select('id')
+        .eq('sender_type', 'client')
+        .eq('is_read', false);
+
+      if (repliesError) throw repliesError;
+
+      res.json({ success: true, unreadCount: unreadReplies?.length || 0 });
+    } catch (error) {
+      console.error('Get unread count error:', error);
+      res.status(500).json({ 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to get unread count' 
+      });
+    }
+  });
+
   // Test email configuration
   app.get("/api/testEmail", async (req, res) => {
     try {
+      console.log('Testing email configuration...');
+      console.log('Environment variables check:', {
+        hasClientId: !!process.env.OUTLOOK_CLIENT_ID,
+        hasClientSecret: !!process.env.OUTLOOK_CLIENT_SECRET,
+        hasTenantId: !!process.env.OUTLOOK_TENANT_ID,
+        hasAdminEmail: !!process.env.ADMIN_FROM_EMAIL,
+        adminEmail: process.env.ADMIN_FROM_EMAIL,
+        clientIdLength: process.env.OUTLOOK_CLIENT_ID?.length,
+        tenantIdLength: process.env.OUTLOOK_TENANT_ID?.length
+      });
+
       const testResult = await sendSubmissionEmail({
         name: "Test User",
         recipient_name: "Test Recipient",
         email: "test@example.com",
         phone: "1234567890",
-        type_of_message: "Test Message",
-        message_details: "This is a test email",
-        feelings: "Testing feelings",
-        story: "Testing story",
-        specific_details: "Testing specific details",
+        type_of_message: "Test Message Type",
+        message_details: "This is a test email to verify the new template works correctly.",
+        feelings: "Testing feelings section",
+        story: "Testing story section with multiple lines\nThis should show on a new line",
+        specific_details: "Testing specific details section",
         delivery_type: "Digital",
         submission_id: "test-123",
       });
       
       res.json({ 
         success: testResult, 
-        message: testResult ? "Test email sent successfully" : "Test email failed",
-        secrets: {
+        message: testResult ? "Test email sent successfully with new template" : "Test email failed - check server logs for details",
+        environment: {
           hasClientId: !!process.env.OUTLOOK_CLIENT_ID,
           hasClientSecret: !!process.env.OUTLOOK_CLIENT_SECRET,
           hasTenantId: !!process.env.OUTLOOK_TENANT_ID,
           hasAdminEmail: !!process.env.ADMIN_FROM_EMAIL,
-        }
+          adminEmail: process.env.ADMIN_FROM_EMAIL,
+        },
+        timestamp: new Date().toISOString()
       });
     } catch (error) {
+      console.error('Test email error:', error);
       res.status(500).json({ 
         success: false, 
-        error: error.message,
-        secrets: {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        environment: {
           hasClientId: !!process.env.OUTLOOK_CLIENT_ID,
           hasClientSecret: !!process.env.OUTLOOK_CLIENT_SECRET,
           hasTenantId: !!process.env.OUTLOOK_TENANT_ID,
           hasAdminEmail: !!process.env.ADMIN_FROM_EMAIL,
-        }
+          adminEmail: process.env.ADMIN_FROM_EMAIL,
+        },
+        timestamp: new Date().toISOString()
       });
     }
   });
