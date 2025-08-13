@@ -3,7 +3,6 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { supabaseAdmin } from "./lib/supabase";
 import { sendSubmissionEmail, sendReplyEmail } from "./lib/outlook";
-import { sendSubmissionEmailMailjet, sendReplyEmailMailjet } from "./lib/mailjet";
 import { z } from "zod";
 
 const submitHugSchema = z.object({
@@ -71,7 +70,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         adminEmail: process.env.ADMIN_FROM_EMAIL
       });
 
-      // Try Outlook first, fallback to Mailjet
+      // Send email notification using Outlook
       let emailSent = await sendSubmissionEmail({
         name: validatedData.name,
         recipient_name: validatedData.recipientName,
@@ -86,25 +85,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         submission_id: hug.id,
       });
 
-      // If Outlook fails, try Mailjet as fallback
-      if (!emailSent) {
-        console.log('Outlook failed, trying Mailjet fallback...');
-        emailSent = await sendSubmissionEmailMailjet({
-          name: validatedData.name,
-          recipient_name: validatedData.recipientName,
-          email: validatedData.email,
-          phone: validatedData.phone,
-          type_of_message: validatedData.serviceType,
-          message_details: `${validatedData.feelings}\n\n${validatedData.story}`,
-          feelings: validatedData.feelings,
-          story: validatedData.story,
-          specific_details: validatedData.specificDetails || '',
-          delivery_type: validatedData.deliveryType,
-          submission_id: hug.id,
-        });
-      }
-
-      console.log('Email send result (with fallback):', emailSent);
+      console.log('Email send result:', emailSent);
       res.json({ success: true, hug, emailSent });
     } catch (error) {
       console.error('Submit hug error:', error);
@@ -200,7 +181,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (hugError) throw hugError;
       if (!hug) throw new Error('Hug not found');
 
-      // Try Outlook first, fallback to Mailjet
+      // Send reply email using Outlook
       let emailSent = await sendReplyEmail(hug['Email Address'] as string, {
         client_name: hug.Name as string,
         reply_message: validatedData.message,
@@ -209,17 +190,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         reply_link: `${req.protocol}://${req.get('host')}/admin/${validatedData.hugid}`,
       });
 
-      // If Outlook fails, try Mailjet as fallback
-      if (!emailSent) {
-        console.log('Outlook reply failed, trying Mailjet fallback...');
-        emailSent = await sendReplyEmailMailjet(hug['Email Address'] as string, {
-          client_name: hug.Name as string,
-          reply_message: validatedData.message,
-          admin_name: validatedData.admin_name,
-          from_email: process.env.ADMIN_FROM_EMAIL || '',
-          reply_link: `${req.protocol}://${req.get('host')}/admin/${validatedData.hugid}`,
-        });
-      }
+
 
       // Update status to "Replied"
       await supabaseAdmin

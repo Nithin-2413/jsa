@@ -120,9 +120,10 @@ export async function sendSubmissionEmail(params: EmailSubmissionParams): Promis
     return true;
   } catch (error) {
     console.error('Microsoft Graph submission email error:', error);
-    if (error.response) {
-      console.error('Response status:', error.response.status);
-      console.error('Response data:', error.response.data);
+    if (error instanceof Error && 'response' in error) {
+      const axiosError = error as any;
+      console.error('Response status:', axiosError.response?.status);
+      console.error('Response data:', axiosError.response?.data);
     }
     return false;
   }
@@ -182,9 +183,10 @@ export async function sendReplyEmail(clientEmail: string, params: EmailReplyPara
     return true;
   } catch (error) {
     console.error('Microsoft Graph reply email error:', error);
-    if (error.response) {
-      console.error('Response status:', error.response.status);
-      console.error('Response data:', error.response.data);
+    if (error instanceof Error && 'response' in error) {
+      const axiosError = error as any;
+      console.error('Response status:', axiosError.response?.status);
+      console.error('Response data:', axiosError.response?.data);
     }
     return false;
   }
