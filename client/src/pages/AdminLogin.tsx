@@ -195,17 +195,23 @@ const AdminLogin = () => {
       
       {/* Enhanced Floating Elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
-        <div className="absolute top-32 left-16 animate-float opacity-15">
-          <img src={logoImage} alt="Logo" className="w-6 h-6" />
+        <div className="absolute top-32 left-16 animate-float opacity-10">
+          <span className="text-2xl">💝</span>
         </div>
-        <div className="absolute top-96 right-20 animate-float delay-1000 opacity-20">
-          <img src={logoImage} alt="Logo" className="w-4 h-4" />
+        <div className="absolute top-96 right-20 animate-float delay-1000 opacity-15">
+          <span className="text-lg">⭐</span>
         </div>
-        <div className="absolute top-[400px] left-1/4 animate-float delay-2000 opacity-25">
-          <Sparkles className="w-5 h-5 text-purple-300" />
+        <div className="absolute top-[400px] left-1/4 animate-float delay-2000 opacity-20">
+          <Sparkles className="w-5 h-5 text-purple-200" />
         </div>
-        <div className="absolute top-[600px] right-1/3 animate-float delay-3000 opacity-20">
-          <MapPin className="w-4 h-4 text-indigo-300" />
+        <div className="absolute top-[600px] right-1/3 animate-float delay-3000 opacity-15">
+          <span className="text-xl">🎁</span>
+        </div>
+        <div className="absolute top-[200px] right-1/4 animate-float delay-4000 opacity-10">
+          <span className="text-lg">💖</span>
+        </div>
+        <div className="absolute top-[500px] left-1/3 animate-float delay-5000 opacity-15">
+          <span className="text-sm">✨</span>
         </div>
       </div>
 
@@ -213,8 +219,8 @@ const AdminLogin = () => {
         <div className="w-full max-w-md">
           <Card className="border-rose-200/30 shadow-2xl backdrop-blur-md bg-white/95 dark:bg-gray-900/95">
             <CardHeader className="text-center space-y-4">
-              <div className="mx-auto w-16 h-16 bg-gradient-to-br from-rose-400 to-pink-600 rounded-full flex items-center justify-center shadow-lg">
-                <img src={logoImage} alt="The Written Hug" className="h-10 w-10" />
+              <div className="mx-auto w-16 h-16">
+                <img src={logoImage} alt="The Written Hug" className="h-16 w-16 rounded-full object-cover shadow-lg transform scale-130" />
               </div>
               <CardTitle className="text-3xl great-vibes-font bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
                 Admin Portal

@@ -137,9 +137,37 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50 relative overflow-hidden">
+      {/* Background Floating Elements */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        <div className="absolute top-20 left-10 animate-float opacity-5">
+          <span className="text-3xl">💝</span>
+        </div>
+        <div className="absolute top-80 right-16 animate-float delay-1000 opacity-8">
+          <span className="text-2xl">⭐</span>
+        </div>
+        <div className="absolute top-40 right-1/3 animate-float delay-2000 opacity-10">
+          <span className="text-xl">✨</span>
+        </div>
+        <div className="absolute top-96 left-1/4 animate-float delay-3000 opacity-6">
+          <span className="text-2xl">🎁</span>
+        </div>
+        <div className="absolute top-60 left-2/3 animate-float delay-4000 opacity-7">
+          <span className="text-lg">💖</span>
+        </div>
+        <div className="absolute top-[500px] right-20 animate-float delay-5000 opacity-9">
+          <span className="text-xl">🌟</span>
+        </div>
+        <div className="absolute top-[300px] left-1/2 animate-float delay-6000 opacity-5">
+          <span className="text-lg">💌</span>
+        </div>
+        <div className="absolute top-[700px] left-16 animate-float delay-7000 opacity-8">
+          <span className="text-sm">✨</span>
+        </div>
+      </div>
+      
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-rose-100">
+      <div className="bg-white shadow-sm border-b border-rose-100 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
@@ -156,7 +184,7 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="bg-white border-0 shadow-md">

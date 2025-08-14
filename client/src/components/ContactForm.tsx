@@ -163,7 +163,7 @@ const ContactForm = () => {
               >
                 <option value="">Select delivery type</option>
                 <option value="Standard Delivery">Standard Delivery (10 days after dispatch)</option>
-                <option value="Express Delivery">Express Delivery (2-3 days after dispatch)</option>
+                <option value="Express Delivery">Express Delivery (2-3 days after dispatch) - ₹150 extra</option>
               </select>
             </div>
           </div>

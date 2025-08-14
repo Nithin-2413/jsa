@@ -60,8 +60,10 @@ export async function sendSubmissionEmail(params: EmailSubmissionParams): Promis
         story: params.story,
         specific_details: params.specific_details || 'None provided',
         delivery_type: params.delivery_type,
-        submission_date: currentDate,
-        submission_id: params.submission_id
+        date: currentDate,
+        status: 'New',
+        unsubscribe_url: '#',
+        preferences_url: '#'
       }
     };
 
@@ -91,6 +93,10 @@ export async function sendSubmissionEmail(params: EmailSubmissionParams): Promis
         preferences_url: '#'
       }
     };
+
+    // Log email data for debugging
+    console.log('Admin email data:', JSON.stringify(adminEmailData, null, 2));
+    console.log('User email data:', JSON.stringify(userEmailData, null, 2));
 
     // Send both emails using Brevo
     const [adminResult, userResult] = await Promise.all([
@@ -137,7 +143,8 @@ export async function sendReplyEmail(clientEmail: string, params: EmailReplyPara
       params: {
         client_name: params.client_name,
         reply_message: params.reply_message,
-        admin_name: params.admin_name
+        admin_name: params.admin_name,
+        message: params.reply_message // Adding alternative variable name
       },
       replyTo: {
         email: 'thewrittenhug@gmail.com',
@@ -145,6 +152,8 @@ export async function sendReplyEmail(clientEmail: string, params: EmailReplyPara
       }
     };
 
+    console.log('Reply email data:', JSON.stringify(replyEmailData, null, 2));
+    
     await axios.post(BREVO_API_URL, replyEmailData, {
       headers: {
         'api-key': BREVO_API_KEY,
