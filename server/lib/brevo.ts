@@ -85,13 +85,15 @@ export async function sendSubmissionEmail(params: EmailSubmissionParams): Promis
         story: params.story,
         specific_details: params.specific_details || 'None provided',
         delivery_type: params.delivery_type,
-        submission_date: currentDate,
-        submission_id: params.submission_id
+        date: currentDate,
+        status: 'Received',
+        unsubscribe_url: '#',
+        preferences_url: '#'
       }
     };
 
     // Send both emails using Brevo
-    await Promise.all([
+    const [adminResult, userResult] = await Promise.all([
       axios.post(BREVO_API_URL, adminEmailData, {
         headers: {
           'api-key': BREVO_API_KEY,
@@ -105,6 +107,9 @@ export async function sendSubmissionEmail(params: EmailSubmissionParams): Promis
         }
       })
     ]);
+    
+    console.log('Admin email result:', adminResult.status);
+    console.log('User email result:', userResult.status);
     
     return true;
   } catch (error) {

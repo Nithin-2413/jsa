@@ -290,14 +290,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get unread message count for admin dashboard
   app.get("/api/getUnreadCount", async (req, res) => {
     try {
-      const { data: unreadReplies, error: repliesError } = await supabaseAdmin
-        .from('hug replies')
-        .select('id')
-        .eq('sender_type', 'client');
-
-      if (repliesError) throw repliesError;
-
-      res.json({ success: true, unreadCount: unreadReplies?.length || 0 });
+      // For now, return 0 since we don't have the is_read column yet
+      res.json({ success: true, unreadCount: 0 });
     } catch (error) {
       console.error('Get unread count error:', error);
       res.status(500).json({ 
