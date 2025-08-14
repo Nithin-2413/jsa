@@ -73,16 +73,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       if (error) throw error;
 
-      // Send email notification to admin using template 7221431
-      console.log('Attempting to send email with secrets:', {
-        hasClientId: !!process.env.OUTLOOK_CLIENT_ID,
-        hasClientSecret: !!process.env.OUTLOOK_CLIENT_SECRET,
-        hasTenantId: !!process.env.OUTLOOK_TENANT_ID,
-        hasAdminEmail: !!process.env.ADMIN_FROM_EMAIL,
-        adminEmail: process.env.ADMIN_FROM_EMAIL
+      // Send email notification using Brevo
+      console.log('Attempting to send email with Brevo:', {
+        hasApiKey: !!process.env.BREVO_API_KEY,
+        hasAdminTemplate: !!process.env.BREVO_ADMIN_TEMPLATE_ID,
+        hasUserTemplate: !!process.env.BREVO_USER_TEMPLATE_ID,
       });
-
-      // Send email notification using Outlook
       let emailSent = await sendSubmissionEmail({
         name: validatedData.name,
         recipient_name: validatedData.recipientName,
@@ -176,9 +172,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           hugid: validatedData.hugid,
           sender_type: 'admin',
           sender_name: 'CEO-The Written Hug',
-          message: validatedData.message,
-          email_sent: true,
-          is_read: true, // Admin's own messages are marked as read
+          message: validatedData.message
         }])
         .select()
         .single();
@@ -195,7 +189,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (hugError) throw hugError;
       if (!hug) throw new Error('Hug not found');
 
-      // Send reply email using Outlook
+      // Send reply email using Brevo
       let emailSent = await sendReplyEmail(hug['Email Address'] as string, {
         client_name: hug.Name as string,
         reply_message: validatedData.message,
@@ -229,7 +223,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       const { error } = await supabaseAdmin
         .from('hug replies')
-        .update({ is_read: true })
+        .update({ sender_type: 'read' }) // Temporary workaround
         .eq('id', validatedData.replyId);
 
       if (error) throw error;
@@ -257,9 +251,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           sender_type: 'client',
           sender_name: '', // Will be filled from hug data
           message: validatedData.message,
-          email_sent: false,
-          is_read: false,
-          email_message_id: validatedData.messageId,
         }])
         .select()
         .single();
@@ -302,8 +293,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { data: unreadReplies, error: repliesError } = await supabaseAdmin
         .from('hug replies')
         .select('id')
-        .eq('sender_type', 'client')
-        .eq('is_read', false);
+        .eq('sender_type', 'client');
 
       if (repliesError) throw repliesError;
 

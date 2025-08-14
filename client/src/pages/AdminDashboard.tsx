@@ -6,7 +6,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, Search, Filter, Calendar, User, Mail, Phone, MessageSquare, Heart, BarChart3, Users, TrendingUp, Clock } from 'lucide-react';
+import { Eye, Search, Filter, Calendar, User, Mail, Phone, MessageSquare, BarChart3, Users, TrendingUp, Clock } from 'lucide-react';
+import logoImage from '@assets/Untitled design (2)_1755165830517.png';
 import { useLocation } from 'wouter';
 
 interface Hug {
@@ -142,7 +143,7 @@ const AdminDashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center space-x-3">
-              <Heart className="h-8 w-8 text-rose-500" />
+              <img src={logoImage} alt="Logo" className="h-8 w-8" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
                 <p className="text-sm text-gray-500">The Written Hug Management</p>
@@ -238,7 +239,7 @@ const AdminDashboard = () => {
             <Card className="bg-white border-0 shadow-md">
               <CardHeader className="border-b border-gray-100 bg-gray-50">
                 <CardTitle className="text-xl text-gray-900 flex items-center">
-                  <Heart className="w-5 h-5 mr-2 text-rose-500" />
+                  <img src={logoImage} alt="Logo" className="w-5 h-5 mr-2" />
                   Message Orders Overview
                 </CardTitle>
               </CardHeader>

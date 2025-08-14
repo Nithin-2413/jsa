@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useLocation } from 'wouter';
-import { LogIn, Heart, MapPin, Sparkles } from 'lucide-react';
+import { LogIn, MapPin, Sparkles } from 'lucide-react';
+import logoImage from '@assets/Untitled design (2)_1755165830517.png';
 
 interface LocationData {
   latitude: number;
@@ -195,10 +196,10 @@ const AdminLogin = () => {
       {/* Enhanced Floating Elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
         <div className="absolute top-32 left-16 animate-float opacity-15">
-          <Heart className="w-6 h-6 text-pink-300 fill-current" />
+          <img src={logoImage} alt="Logo" className="w-6 h-6" />
         </div>
         <div className="absolute top-96 right-20 animate-float delay-1000 opacity-20">
-          <Heart className="w-4 h-4 text-rose-300 fill-current" />
+          <img src={logoImage} alt="Logo" className="w-4 h-4" />
         </div>
         <div className="absolute top-[400px] left-1/4 animate-float delay-2000 opacity-25">
           <Sparkles className="w-5 h-5 text-purple-300" />
@@ -213,7 +214,7 @@ const AdminLogin = () => {
           <Card className="border-rose-200/30 shadow-2xl backdrop-blur-md bg-white/95 dark:bg-gray-900/95">
             <CardHeader className="text-center space-y-4">
               <div className="mx-auto w-16 h-16 bg-gradient-to-br from-rose-400 to-pink-600 rounded-full flex items-center justify-center shadow-lg">
-                <Heart className="h-8 w-8 text-white" />
+                <img src={logoImage} alt="The Written Hug" className="h-10 w-10" />
               </div>
               <CardTitle className="text-3xl great-vibes-font bg-gradient-to-r from-rose-600 to-pink-600 bg-clip-text text-transparent">
                 Admin Portal
@@ -221,17 +222,7 @@ const AdminLogin = () => {
               <p className="text-muted-foreground">
                 The Written Hug - Admin Access
               </p>
-              {locationPermissionGranted && locationData && (
-                <div className="flex items-center justify-center gap-2 text-sm text-green-600">
-                  <MapPin className="w-4 h-4" />
-                  <span>Location verified</span>
-                  {locationData.city && (
-                    <span className="text-muted-foreground">
-                      ({locationData.city}, {locationData.country})
-                    </span>
-                  )}
-                </div>
-              )}
+              {/* Location verification happens silently in background */}
             </CardHeader>
             <CardContent className="space-y-6">
               <form onSubmit={handleLogin} className="space-y-4">

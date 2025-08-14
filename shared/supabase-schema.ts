@@ -25,6 +25,8 @@ export const hugReplies = pgTable("hug_replies", {
   sender_type: text("sender_type"), // 'admin' or 'client'
   sender_name: text("sender_name"),
   message: text("message"),
+  is_read: text("is_read").default("false"), // Add missing column
+  email_sent: text("email_sent").default("false"), // Add missing column
 });
 
 export const adminLoginLogs = pgTable("admin_login_logs", {
