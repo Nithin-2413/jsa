@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { supabaseAdmin } from "./lib/supabase";
-import { sendSubmissionEmail, sendReplyEmail } from "./lib/outlook";
+import { sendSubmissionEmail, sendReplyEmail } from "./lib/brevo";
 import { z } from "zod";
 
 const submitHugSchema = z.object({

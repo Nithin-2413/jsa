@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: thewrittenhug
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: BREVO_API_KEY
+        sync: false
+      - key: BREVO_ADMIN_TEMPLATE_ID
+        sync: false
+      - key: BREVO_USER_TEMPLATE_ID
+        sync: false
+      - key: BREVO_REPLY_TEMPLATE_ID
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
