@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Kabootar — You've got a letter</title>
+  </head>
+  <body style="margin:0;padding:0;background:#ffffff;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;font-family:Arial, sans-serif;color:#333333;">
+
+    <!-- Preheader -->
+    <div style="display:none!important;visibility:hidden;opacity:0;color:transparent;height:0;width:0;overflow:hidden;mso-hide:all;">
+      You've received a new message via Kabootar. Open to view details.
+    </div>
+
+    <div role="article" aria-label="Kabootar message notification" style="width:100%;padding:20px 12px;box-sizing:border-box;">
+      <div role="presentation" style="width:100%;max-width:700px;margin:0 auto;border-radius:8px;overflow:hidden;border:1px solid #f0e6e6;background:#fff;">
+
+        <!-- Error block -->
+        <div id="error-block" style="display:none;background:#fff3f3;color:#a00;padding:10px;text-align:center;font-size:13px;">
+          Error: {{error_message}}
+        </div>
+
+        <!-- Title -->
+        <h2 style="font-family:Arial, sans-serif;color:#ff6b6b;text-align:center;margin:18px 20px;font-size:20px;line-height:1.2;">
+          Kabootar has got {{name}} a Letter
+        </h2>
+
+        <!-- Table -->
+        <div style="display:flex;justify-content:center;padding:0 18px 18px 18px;">
+          <table role="table" style="width:100%;max-width:700px;border-collapse:collapse;font-family:Arial, sans-serif;">
+            <thead>
+              <tr>
+                <th colspan="2" style="padding:0;background:linear-gradient(90deg,#ff6b6b,#ff9f43);color:#ffffff;border-bottom:1px solid rgba(255,255,255,0.15);">
+                  <table width="100%" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;">
+                    <tr>
+                      <td style="padding:12px;font-size:14px;text-align:center;font-weight:700;">Field</td>
+                      <td style="padding:12px;font-size:14px;text-align:center;font-weight:700;">Value</td>
+                    </tr>
+                  </table>
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr style="background:#fff5f5;">
+                <td style="padding:10px;border-bottom:1px solid #ffd6d6;">Name</td>
+                <td style="padding:10px;border-bottom:1px solid #ffd6d6;">{{name}}</td>
+              </tr>
+
+              <tr style="background:#fffaf2;">
+                <td style="padding:10px;border-bottom:1px solid #ffe6cc;">Recipient's Name</td>
+                <td style="padding:10px;border-bottom:1px solid #ffe6cc;">{{recipients_name}}</td>
+              </tr>
+
+              <tr style="background:#fff5f5;">
+                <td style="padding:10px;border-bottom:1px solid #ffd6d6;">Date</td>
+                <td style="padding:10px;border-bottom:1px solid #ffd6d6;">{{date}}</td>
+              </tr>
+
+              <tr style="background:#fffaf2;">
+                <td style="padding:10px;border-bottom:1px solid #ffe6cc;">Status</td>
+                <td style="padding:10px;border-bottom:1px solid #ffe6cc;">{{status}}</td>
+              </tr>
+
+              <tr style="background:#fff5f5;">
+                <td style="padding:10px;border-bottom:1px solid #ffd6d6;">Email Address</td>
+                <td style="padding:10px;border-bottom:1px solid #ffd6d6;"><a href="mailto:{{email_address}}" style="color:#ff6b6b;text-decoration:none;">{{email_address}}</a></td>
+              </tr>
+
+              <tr style="background:#fffaf2;">
+                <td style="padding:10px;border-bottom:1px solid #ffe6cc;">Phone Number</td>
+                <td style="padding:10px;border-bottom:1px solid #ffe6cc;">{{phone_number}}</td>
+              </tr>
+
+              <tr style="background:#fff5f5;">
+                <td style="padding:10px;border-bottom:1px solid #ffd6d6;">Type of Message</td>
+                <td style="padding:10px;border-bottom:1px solid #ffd6d6;">{{type_of_message}}</td>
+              </tr>
+
+              <tr style="background:#fffaf2;">
+                <td style="padding:10px;border-bottom:1px solid #ffe6cc;">Message Details</td>
+                <td style="padding:10px;border-bottom:1px solid #ffe6cc;">{{message_details}}</td>
+              </tr>
+
+              <tr style="background:#fff5f5;">
+                <td style="padding:10px;border-bottom:1px solid #ffd6d6;">Feelings</td>
+                <td style="padding:10px;border-bottom:1px solid #ffd6d6;">{{feelings}}</td>
+              </tr>
+
+              <tr style="background:#fffaf2;">
+                <td style="padding:10px;border-bottom:1px solid #ffe6cc;">Story</td>
+                <td style="padding:10px;border-bottom:1px solid #ffe6cc;">{{story}}</td>
+              </tr>
+
+              <tr style="background:#fff5f5;">
+                <td style="padding:10px;border-bottom:1px solid #ffd6d6;">Specific Details</td>
+                <td style="padding:10px;border-bottom:1px solid #ffd6d6;">{{specific_details}}</td>
+              </tr>
+
+              <tr style="background:#fffaf2;">
+                <td style="padding:10px;">Delivery Type</td>
+                <td style="padding:10px;">{{delivery_type}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div style="padding:12px 18px 20px 18px;text-align:center;font-size:12px;color:#666666;">
+      <div style="color:#777777;font-size:12px;">You are receiving this message because you or someone associated with this email interacted with Kabootar.</div>
+      <div style="margin-top:8px;">
+        <a href="{{unsubscribe_url}}" style="font-size:13px;color:#ff6b6b;text-decoration:none;">Unsubscribe</a> •
+        <a href="{{preferences_url}}" style="font-size:13px;color:#ff6b6b;text-decoration:none;">Update preferences</a>
+      </div>
+    </div>
+
+  </body>
+</html>

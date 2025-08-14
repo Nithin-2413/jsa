@@ -51,9 +51,9 @@ export async function sendSubmissionEmail(params: EmailSubmissionParams): Promis
       templateId: parseInt(process.env.BREVO_ADMIN_TEMPLATE_ID || '1'), // You'll need to provide this
       params: {
         name: params.name,
-        recipient_name: params.recipient_name,
-        email: params.email,
-        phone: params.phone,
+        recipients_name: params.recipient_name,
+        email_address: params.email,
+        phone_number: params.phone,
         type_of_message: params.type_of_message,
         message_details: params.message_details,
         feelings: params.feelings,
@@ -78,9 +78,9 @@ export async function sendSubmissionEmail(params: EmailSubmissionParams): Promis
       templateId: parseInt(process.env.BREVO_USER_TEMPLATE_ID || '2'), // You'll need to provide this
       params: {
         name: params.name,
-        recipient_name: params.recipient_name,
-        email: params.email,
-        phone: params.phone,
+        recipients_name: params.recipient_name,
+        email_address: params.email,
+        phone_number: params.phone,
         type_of_message: params.type_of_message,
         message_details: params.message_details,
         feelings: params.feelings,

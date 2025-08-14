@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, Search, Filter, Calendar, User, Mail, Phone, MessageSquare, BarChart3, Users, TrendingUp, Clock } from 'lucide-react';
+import { Eye, Search, Filter, Calendar, User, Mail, Phone, MessageSquare, BarChart3, Users, TrendingUp, Clock, Globe, Heart } from 'lucide-react';
 import logoImage from '@assets/Untitled design (2)_1755165830517.png';
 import { useLocation } from 'wouter';
 
@@ -140,29 +140,51 @@ const AdminDashboard = () => {
     <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50 relative overflow-hidden">
       {/* Background Floating Elements */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-20 left-10 animate-float opacity-5">
-          <span className="text-3xl">💝</span>
+        {/* Large movement hearts and love icons */}
+        <div className="absolute top-10 left-5 animate-bounce opacity-8">
+          <Heart className="w-8 h-8 text-rose-200 fill-current" />
         </div>
-        <div className="absolute top-80 right-16 animate-float delay-1000 opacity-8">
-          <span className="text-2xl">⭐</span>
+        <div className="absolute top-32 right-10 animate-pulse delay-1000 opacity-10">
+          <span className="text-4xl">💝</span>
         </div>
-        <div className="absolute top-40 right-1/3 animate-float delay-2000 opacity-10">
+        <div className="absolute top-80 left-20 animate-float delay-2000 opacity-12">
+          <span className="text-3xl">⭐</span>
+        </div>
+        
+        {/* Medium movement sparkles and gifts */}
+        <div className="absolute top-60 right-1/4 animate-bounce delay-3000 opacity-15">
+          <span className="text-2xl">✨</span>
+        </div>
+        <div className="absolute top-96 left-1/3 animate-pulse delay-4000 opacity-8">
+          <span className="text-3xl">🎁</span>
+        </div>
+        <div className="absolute top-40 left-2/3 animate-float delay-5000 opacity-10">
+          <Heart className="w-6 h-6 text-pink-200 fill-current" />
+        </div>
+        
+        {/* More scattered elements for fuller background */}
+        <div className="absolute top-[200px] right-1/3 animate-bounce delay-6000 opacity-12">
+          <span className="text-2xl">🌟</span>
+        </div>
+        <div className="absolute top-[400px] left-1/2 animate-pulse delay-7000 opacity-9">
+          <span className="text-xl">💌</span>
+        </div>
+        <div className="absolute top-[600px] right-16 animate-float delay-8000 opacity-11">
+          <span className="text-2xl">💖</span>
+        </div>
+        <div className="absolute top-[500px] left-10 animate-bounce delay-9000 opacity-7">
+          <Heart className="w-5 h-5 text-rose-300 fill-current" />
+        </div>
+        <div className="absolute top-[300px] right-2/3 animate-pulse delay-10000 opacity-13">
           <span className="text-xl">✨</span>
         </div>
-        <div className="absolute top-96 left-1/4 animate-float delay-3000 opacity-6">
-          <span className="text-2xl">🎁</span>
+        
+        {/* Additional sparkles */}
+        <div className="absolute top-[150px] left-1/4 animate-float delay-11000 opacity-8">
+          <span className="text-lg">⭐</span>
         </div>
-        <div className="absolute top-60 left-2/3 animate-float delay-4000 opacity-7">
-          <span className="text-lg">💖</span>
-        </div>
-        <div className="absolute top-[500px] right-20 animate-float delay-5000 opacity-9">
-          <span className="text-xl">🌟</span>
-        </div>
-        <div className="absolute top-[300px] left-1/2 animate-float delay-6000 opacity-5">
-          <span className="text-lg">💌</span>
-        </div>
-        <div className="absolute top-[700px] left-16 animate-float delay-7000 opacity-8">
-          <span className="text-sm">✨</span>
+        <div className="absolute top-[750px] right-1/4 animate-bounce delay-12000 opacity-10">
+          <span className="text-2xl">🎯</span>
         </div>
       </div>
       
@@ -177,9 +199,20 @@ const AdminDashboard = () => {
                 <p className="text-sm text-gray-500">The Written Hug Management</p>
               </div>
             </div>
-            <Button onClick={handleLogout} variant="outline" size="sm">
-              Logout
-            </Button>
+            <div className="flex items-center space-x-3">
+              <Button 
+                onClick={() => window.open('/', '_blank')} 
+                variant="outline" 
+                size="sm"
+                className="flex items-center space-x-2"
+              >
+                <Globe className="w-4 h-4" />
+                <span>Website</span>
+              </Button>
+              <Button onClick={handleLogout} variant="outline" size="sm">
+                Logout
+              </Button>
+            </div>
           </div>
         </div>
       </div>
